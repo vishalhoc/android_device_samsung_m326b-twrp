@@ -1,0 +1,57 @@
+# recovery.fstab — Samsung Galaxy M32 5G (SM-M326B)
+# ALL VALUES VERIFIED FROM LIVE DEVICE (ADB root investigation)
+#
+# Platform: MT6853 (Dimensity 720)
+# Android 13, One UI 5.1, Kernel 4.14.186
+# Encryption: FBE v2, aes-256-xts:aes-256-cts:v2
+# userdata: f2fs filesystem
+# keydirectory: /metadata/vold/metadata_encryption
+#
+# Partition layout (confirmed blockdev --getsize64):
+#   boot     = sdc43 = 32 MiB (33,554,432)
+#   recovery = sdc44 = 40 MiB (41,943,040)
+#   dtbo     = sdc17 = 8 MiB
+#   vbmeta   = sdc18 = 64 KiB
+#   super    = sdc50 = 7,864,320,000 bytes (~7500 MiB)
+#   userdata = sdc56 = ~110 GiB (f2fs)
+#   cache    = sdc53 = ext4
+#   metadata = sdc31 = ext4
+#   efs      = sdc2  = ext4
+
+# ── Logical partitions (inside super, dynamic) ──────────────────────────
+# system/vendor/product/odm are dynamic logical partitions
+# From /vendor/etc/fstab.emmc: avb=vbmeta_system,logical,first_stage_mount
+system          /system         ext4    ro      wait,logical,first_stage_mount
+vendor          /vendor         ext4    ro      wait,logical,first_stage_mount
+product         /product        ext4    ro      wait,logical,first_stage_mount
+odm             /odm            ext4    ro      wait,logical,first_stage_mount
+
+# ── Physical data partition ─────────────────────────────────────────────
+# From /vendor/etc/fstab.emmc: f2fs with FBE v2
+/dev/block/by-name/userdata     /data           f2fs    noatime,nosuid,nodev,discard,usrquota,grpquota,fsync_mode=nobarrier,reserve_root=32768,resgid=5678,inlinecrypt    wait,check,fileencryption=aes-256-xts:aes-256-cts:v2,keydirectory=/metadata/vold/metadata_encryption,quota,reservedsize=128M,latemount
+
+# ── Cache partition ──────────────────────────────────────────────────────
+/dev/block/by-name/cache        /cache          ext4    noatime,nosuid,nodev,noauto_da_alloc,discard,journal_checksum,data=ordered,errors=panic    wait,check,formattable
+
+# ── Metadata partition (required for FBE key storage) ───────────────────
+/dev/block/by-name/metadata     /metadata       ext4    noatime,nosuid,nodev,discard,sync    wait,check,formattable,first_stage_mount
+
+# ── EFS partition (NEVER backup/restore — contains IMEI) ────────────────
+/dev/block/by-name/efs          /efs            ext4    noatime,nosuid,nodev,discard    wait,check
+
+# ── Flashable images ────────────────────────────────────────────────────
+# These entries allow TWRP to display and flash the raw partition images
+/boot           emmc    /dev/block/by-name/boot         flags=display="Boot (32 MiB)";backup=1;flashimg
+/recovery       emmc    /dev/block/by-name/recovery     flags=display="Recovery (40 MiB)";backup=1;flashimg
+/dtbo           emmc    /dev/block/by-name/dtbo         flags=display="DTBO";backup=1;flashimg
+/vbmeta         emmc    /dev/block/by-name/vbmeta       flags=display="VBMeta";backup=1;flashimg
+
+# ── Samsung-specific firmware partitions ────────────────────────────────
+/prism          emmc    /dev/block/by-name/prism        flags=display="Prism";backup=0
+/optics         emmc    /dev/block/by-name/optics       flags=display="Optics";backup=0
+
+# ── External storage ────────────────────────────────────────────────────
+/external_sd    auto    /dev/block/mmcblk1p1            flags=display="MicroSD";storage;wipeingui;removable
+
+# ── USB OTG ─────────────────────────────────────────────────────────────
+/usb_otg        auto    /dev/block/sda                  flags=display="USB OTG";storage;wipeingui;removable

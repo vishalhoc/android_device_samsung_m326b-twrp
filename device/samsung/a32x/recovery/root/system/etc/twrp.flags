@@ -1,0 +1,18 @@
+# twrp.flags — Samsung Galaxy M32 5G (SM-M326B)
+# Extra TWRP partition flags beyond recovery.fstab
+# M326B super = 7,864,320,000 bytes (logical partitions inside)
+
+# ── Logical partitions (inside super, ~7500 MiB) ─────────────────────
+system          /system         ext4    flags=logical
+vendor          /vendor         ext4    flags=logical
+product         /product        ext4    flags=logical
+odm             /odm            ext4    flags=logical
+
+# ── Image-level partition flashing (backup=0: don't include in NANDroid) ──
+/system_image   emmc    /dev/block/by-name/system   flags=backup=0;flashimg;display="System Image"
+/vendor_image   emmc    /dev/block/by-name/vendor   flags=backup=0;flashimg;display="Vendor Image"
+/product_image  emmc    /dev/block/by-name/product  flags=backup=0;flashimg;display="Product Image"
+/odm_image      emmc    /dev/block/by-name/odm      flags=backup=0;flashimg;display="ODM Image"
+
+# ── Super partition (full backup, very large — ~7.5 GB) ──────────────
+/super          emmc    /dev/block/by-name/super    flags=backup=0;flashimg;display="Super (7500 MiB)"

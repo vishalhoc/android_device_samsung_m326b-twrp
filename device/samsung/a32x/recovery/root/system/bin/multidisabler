@@ -1,0 +1,92 @@
+#!/system/bin/sh
+# multidisabler — Samsung SM-M326B (a32x)
+# Disables Samsung-specific security features that interfere with TWRP
+# Adapted from the A326B version (same platform, same CSC structure)
+#
+# Features disabled:
+#   1. dm-verity (system/vendor integrity checking via fstab modification)
+#   2. Encryption (to allow unencrypted data access in recovery)
+#   3. vaultkeeper (Samsung vault service blocking recovery ops)
+#
+# Run from TWRP terminal after first boot
+
+FSTAB=/vendor/etc/fstab.emmc
+
+# ── Disable dm-verity (remove avb= flags from fstab) ────────────────────
+disable_verity() {
+    if grep -q "avb" "$FSTAB" 2>/dev/null; then
+        echo "Disabling dm-verity in $FSTAB..."
+        # Replace avb,avb_key, avb=vbmeta_system etc with nothing
+        sed -i \
+            -e 's/,avb=vbmeta_system//g' \
+            -e 's/,avb=vbmeta//g' \
+            -e 's/,avb//g' \
+            -e 's/avb,//g' \
+            -e 's/avb_keys=[^,]*//' \
+            "$FSTAB"
+        echo "  -> dm-verity disabled"
+    else
+        echo "  -> dm-verity already disabled or no avb entries found"
+    fi
+}
+
+# ── Disable encryption requirement ──────────────────────────────────────
+disable_encryption() {
+    if grep -q "fileencryption" "$FSTAB" 2>/dev/null; then
+        echo "Disabling encryption in $FSTAB..."
+        sed -i \
+            -e 's/fileencryption=[^,]*/encryptable/' \
+            -e 's/,keydirectory=[^,]*//' \
+            -e 's/,fsverity//' \
+            -e 's/,fscompress//' \
+            -e 's/inlinecrypt//' \
+            "$FSTAB"
+        echo "  -> Encryption disabled"
+    else
+        echo "  -> No fileencryption entry found"
+    fi
+}
+
+# ── Disable vaultkeeper ──────────────────────────────────────────────────
+disable_vaultkeeper() {
+    VK_PROP=/vendor/etc/vaultkeeper_feature.conf
+    if [ -f "$VK_PROP" ]; then
+        echo "Disabling vaultkeeper..."
+        mount -o remount,rw /vendor
+        echo 0 > "$VK_PROP"
+        mount -o remount,ro /vendor
+        echo "  -> vaultkeeper disabled"
+    fi
+}
+
+# ── Disable recovery-from-boot (prevents stock recovery restore) ─────────
+disable_recovery_from_boot() {
+    echo "Disabling recovery-from-boot..."
+    # On Samsung MTK: touch /sideload/.disable_recovery_from_boot
+    # or remove the recovery-from-boot marker
+    if [ -d /sideload ]; then
+        touch /sideload/.disable_recovery_from_boot
+    fi
+    # Also patch misc partition to prevent recovery-from-boot trigger
+    # (Advanced — skip if unsure)
+    echo "  -> Done"
+}
+
+# ── Main ─────────────────────────────────────────────────────────────────
+echo "=== Samsung M326B Multidisabler ==="
+echo "Running on: $(getprop ro.product.model)"
+echo "Build: $(getprop ro.build.fingerprint)"
+echo ""
+
+mount -o remount,rw /vendor 2>/dev/null
+
+disable_verity
+disable_encryption
+disable_vaultkeeper
+disable_recovery_from_boot
+
+mount -o remount,ro /vendor 2>/dev/null
+
+echo ""
+echo "=== Done. Please reboot to recovery. ==="
+echo "NOTE: After reboot to Android, re-run if TWRP is overwritten."

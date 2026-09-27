@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- local_manifests/roomservice.xml -->
+<!-- Place this at: .repo/local_manifests/roomservice.xml -->
+<!-- in your TWRP build directory after running repo init -->
+<!--
+  SM-M326B / Samsung Galaxy M32 5G - TWRP Device Tree
+  Codename: a32x (same as A326B — confirmed from ro.product.device)
+  Platform: MT6853 (Dimensity 720)
+-->
+<manifest>
+  <project
+    name="goldenkrew3000/android_device_samsung_a32x"
+    path="device/samsung/a32x"
+    remote="github"
+    revision="twrp" />
+</manifest>

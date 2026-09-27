@@ -1,0 +1,6 @@
+# init.recovery.samsung.rc — Samsung-specific recovery init
+# Minimal file required for Samsung recovery compatibility
+
+on init
+    # Samsung specific: ensure correct USB mode for recovery
+    setprop ro.product.manufacturer samsung
