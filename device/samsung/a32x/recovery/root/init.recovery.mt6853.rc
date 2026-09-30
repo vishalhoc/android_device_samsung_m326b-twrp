@@ -1,20 +1,31 @@
 # init.recovery.mt6853.rc — Samsung Galaxy M32 5G (SM-M326B)
-# Platform: MT6853 (MediaTek Dimensity 720)
-# Verified compatible: both A326B and M326B share this MT6853 init sequence
-# /dev/block/mmcblk0boot0 confirmed present on M326B (preloader_a)
-
 on init
     setprop sys.usb.configfs 1
     setprop sys.usb.ffs.aio_compat 1
+    write /sys/class/leds/lcd-backlight/brightness 150
+    write /sys/devices/platform/panel/panel_drv/backlight/panel/brightness 150
 
 on fs && property:ro.debuggable=0
-    # Distinguish USB connection type: CDP vs SDP
     write /sys/class/udc/musb-hdrc/device/cmode 2
-    # Set charging free to allow USB activation
     start adbd
 
 on post-fs
-    # Support A/B feature for EMMC boot region (preloader_a/b)
-    # M326B: preloader_a -> /dev/block/mmcblk0boot0 (verified from block devices)
     wait /dev/block/mmcblk0boot0 2
     symlink /dev/block/sda /dev/block/mmcblk0boot0
+
+service tsp_keepalive /system/bin/tsp_keepalive.sh
+    user root
+    group root
+    seclabel u:r:recovery:s0
+
+service teegris_decrypt /system/bin/sh /system/bin/start_teegris_decrypt.sh
+    user root
+    group root
+    seclabel u:r:recovery:s0
+
+on boot
+    start tsp_keepalive
+    start teegris_decrypt
+
+on property:sys.powerctl=*
+    powerctl ${sys.powerctl}

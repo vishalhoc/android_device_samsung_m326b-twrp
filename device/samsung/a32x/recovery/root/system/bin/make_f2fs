@@ -1,0 +1,32 @@
+#!/system/bin/sh
+# Wrapper to format F2FS and immediately auto-create /data/media/0 for MTP storage
+/system/bin/make_f2fs.bin "$@"
+RET=$?
+if [ $RET -ne 0 ]; then
+    exit $RET
+fi
+
+DEV=""
+for arg in "$@"; do
+    case "$arg" in
+        /dev/block/*)
+            DEV="$arg"
+            ;;
+    esac
+done
+
+if [ -n "$DEV" ] && echo "$DEV" | grep -qE "userdata|sdc56"; then
+    mkdir -p /tmp/f2fs_fmt_mnt
+    mount -t f2fs "$DEV" /tmp/f2fs_fmt_mnt 2>/dev/null || mount "$DEV" /tmp/f2fs_fmt_mnt 2>/dev/null
+    if mountpoint -q /tmp/f2fs_fmt_mnt; then
+        mkdir -p /tmp/f2fs_fmt_mnt/media/0/TWRP
+        mkdir -p /tmp/f2fs_fmt_mnt/media/0/Download
+        chown -R 1023:1023 /tmp/f2fs_fmt_mnt/media 2>/dev/null || true
+        chmod -R 0775 /tmp/f2fs_fmt_mnt/media 2>/dev/null || true
+        sync
+        umount /tmp/f2fs_fmt_mnt 2>/dev/null || true
+        rmdir /tmp/f2fs_fmt_mnt 2>/dev/null || true
+    fi
+fi
+
+exit 0

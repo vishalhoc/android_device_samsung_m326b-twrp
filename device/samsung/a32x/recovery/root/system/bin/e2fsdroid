@@ -1,0 +1,3 @@
+#!/system/bin/sh
+# Prevent std::bad_cast SIGABRT crash during ext4 formatting
+exit 0

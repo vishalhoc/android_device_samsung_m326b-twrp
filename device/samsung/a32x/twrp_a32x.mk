@@ -25,6 +25,10 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/recovery/root/init.recovery.mt6853.rc:$(TARGET_COPY_OUT_RECOVERY)/root/init.recovery.mt6853.rc \
     $(LOCAL_PATH)/recovery/root/init.recovery.samsung.rc:$(TARGET_COPY_OUT_RECOVERY)/root/init.recovery.samsung.rc \
     $(LOCAL_PATH)/recovery/root/system/bin/multidisabler:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/multidisabler \
+    $(LOCAL_PATH)/recovery/root/system/bin/e2fsdroid:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/e2fsdroid \
+    $(LOCAL_PATH)/recovery/root/system/bin/make_f2fs:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/make_f2fs \
+    $(LOCAL_PATH)/recovery/root/system/bin/start_teegris_decrypt.sh:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/start_teegris_decrypt.sh \
+    $(LOCAL_PATH)/recovery/root/system/bin/tsp_keepalive.sh:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/tsp_keepalive.sh \
     $(LOCAL_PATH)/recovery/root/system/etc/recovery.fstab:$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/recovery.fstab \
     $(LOCAL_PATH)/recovery/root/system/etc/twrp.flags:$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/twrp.flags
 

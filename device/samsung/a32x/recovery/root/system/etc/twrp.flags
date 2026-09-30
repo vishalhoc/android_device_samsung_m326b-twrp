@@ -15,4 +15,9 @@ odm             /odm            ext4    flags=logical
 /odm_image      emmc    /dev/block/by-name/odm      flags=backup=0;flashimg;display="ODM Image"
 
 # ── Super partition (full backup, very large — ~7.5 GB) ──────────────
-/super          emmc    /dev/block/by-name/super    flags=backup=0;flashimg;display="Super (7500 MiB)"
+/super          emmc    /dev/block/by-name/super    flags=backup=1;flashimg;display="Super (7500 MiB)"
+
+# ── Samsung-specific firmware partitions ────────────────────────────────
+/prism          emmc    /dev/block/by-name/prism    flags=backup=1;flashimg;display="Prism"
+/optics         emmc    /dev/block/by-name/optics   flags=backup=1;flashimg;display="Optics"
+/efs            emmc    /dev/block/by-name/efs      flags=backup=1;display="EFS"
